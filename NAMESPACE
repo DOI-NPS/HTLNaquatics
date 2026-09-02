@@ -2,13 +2,21 @@
 
 export(getInvtCounts)
 export(importData)
-importFrom(DBI,dbDisconnect)
-importFrom(DBI,dbListTables)
-importFrom(dplyr,collect)
-importFrom(dplyr,filter)
-importFrom(dplyr,mutate)
-importFrom(dplyr,tbl)
-importFrom(odbc,dbConnect)
-importFrom(odbc,odbc)
-importFrom(utils,setTxtProgressBar)
-importFrom(utils,txtProgressBar)
+importFrom(DBI,
+  dbDisconnect,
+  dbListTables
+)
+importFrom(dplyr,
+  collect,
+  filter,
+  mutate,
+  tbl
+)
+importFrom(odbc,
+  dbConnect,
+  odbc
+)
+importFrom(utils,
+  setTxtProgressBar,
+  txtProgressBar
+)

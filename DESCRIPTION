@@ -1,15 +1,14 @@
 Package: HTLNaquatics
-Title: What the Package Does (One Line, Title Case)
+Title: Package for compiling, querying, and summarizing aquatic data from HTLN
 Version: 0.0.0.9000
 Authors@R: 
     person("Kinzie", 
            "Bailey", 
            email = "kinzie_bailey@partner.nps.gov", 
            role = c("aut", "cre"))
-Description: Utilities for data capture, analysis, and reporting aquatics data.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+Description: Provides utilities for capturing, querying, analyzing, and reporting aquatic monitoring data collected by the HTLN network.
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 8.0.0
 Depends: R (>= 4.1.0)
+Config/roxygen2/version: 8.1.0
