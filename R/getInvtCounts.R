@@ -87,6 +87,10 @@ getInvtCounts <- function(park = 'all', season = NULL, taxon = "all"){
                               envir = env),
                           error = function(e){stop("Count table not found. Please import database tables.")})
 
+  temp12 <- tryCatch(get("tbl_Temp12",
+                         envir = env),
+                     error = function(e){stop("Temp12 table not found. Please import database tables.")})
+
   # Error for no park data
   parks_in_data <- unique(substr(invt_count1$LocationID, 1, 4))
 
@@ -123,11 +127,15 @@ getInvtCounts <- function(park = 'all', season = NULL, taxon = "all"){
   }
 
   # Filtering ----
-  invt_count <- invt_count1 |>
+  invt_count2 <- invt_count1 |>
     dplyr::mutate(Park = substr(LocationID, 1, 4)) |>
     dplyr::filter(Park %in% park &
                     (is.null(season) || Season %in% season) &
                     TaxonCode %in% taxon)
+
+  # joining with temp 12 file
+  invt_count <- invt_count2 |>
+    dplyr::left_join(temp12)
 
 
   return(invt_count)
