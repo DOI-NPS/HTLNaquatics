@@ -6,7 +6,7 @@
 #' @description This function calculates the EPT richness and ratio from HTLN
 #' invertebrate data.
 #'
-#' @param df The dataframe for calculating EPT.
+#' @param data The dataframe for calculating EPT.
 #' @param type Allows you to select the type of EPT (richness or ratio or both).
 #' \describe{
 #' \item{"all"}{Default. Includes both EPT richness and ratio in the output}
@@ -32,7 +32,7 @@
 #'
 #' @export
 
-calculateEPT <- function(df, type = 'all'){
+calculateEPT <- function(data, type = 'all'){
 
   # Bug handling
   type_list <- c("ratio", "richness")
@@ -53,7 +53,7 @@ calculateEPT <- function(df, type = 'all'){
             "Replicate")
 
   ## calculating ept ratio and ept richness
-  ept_all <- df |>
+  ept_all <- data |>
     dplyr::filter(if_all(c(LocationID, Season, RiffleNo), ~!is.na(.))) |>
     dplyr::summarise(ept_count = sum(Order %in% ept_order, na.rm = TRUE),
                      total_samp = dplyr::n(),
