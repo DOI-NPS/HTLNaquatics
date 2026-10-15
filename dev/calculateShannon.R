@@ -1,0 +1,97 @@
+#' @title calculateShannon: calculates the Shannon's Diversity Index with the output from getInvtCounts function.
+#'
+#' @importFrom dplyr mutate filter summarise n n_distinct
+#'
+#' @description This function calculates the Shannon's Diversity Index from HTLN
+#' invertebrate data.
+#'
+#' @param data The dataframe for calculating SDI.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' library(HTLNaquatics)
+#'
+#' calculateEPT()
+#'
+#' # Default: return both calculated EPT richness and ratio of HTLN aquatic
+#' # invertebrate data.
+#' calculateEPT()
+#'
+#' # Specific type (ratio)
+#' calculateEPT(type = "ratio")
+#' }
+#'
+#' @returns Returns a data frame of EPT ratio and/or richness data
+#'
+#' @export
+
+calculateShannon <- function(data){
+
+  # Bug handling
+
+  ## Checking data structure
+  col_names <- c("LocationID",
+                 "Season",
+                 "RiffleNo",
+                 "Replicate",
+                 "Order",
+                 "TaxonCode",
+                 "RepCount_Calc")
+
+  df_cols <- colnames(data)
+
+  missing_cols <- setdiff(col_names, df_cols)
+
+  if(length(missing_cols) > 0) {
+    stop("Missing the following columns for EPT calculations: ",
+         paste0(missing_cols,
+                collapse = ", "))
+  }
+
+  # Columns to group by
+  cols <- c("LocationID",
+            "Season",
+            "RiffleNo",
+            "Replicate")
+
+  ### removing NA
+  shannon1 <- data |>
+    dplyr::filter(if_all(all_of(cols), ~!is.na(.)))
+
+  # getting total number of individuals counted
+  shannon2 <- shannon1 |>
+    dplyr::mutate(total_count = sum(RepCount_Calc, na.rm = TRUE),
+                  .by = all_of(cols))
+
+  # proportions
+  shannon3 <- shannon2 |>
+    dplyr::mutate(proportion = RepCount_Calc / total_count)
+
+  # natural log
+  shannon4 <- shannon3 |>
+    dplyr::mutate(nat_log = log(proportion))
+
+  # proportion * natural log
+  shannon5 <- shannon4 |>
+    dplyr::mutate(prop_log = proportion * nat_log)
+
+  # Shannon Diversity Index
+  shannon6 <- shannon5 |>
+    dplyr::summarise(H = sum(-prop_log),
+                     .by = c(LocationID,
+                             Season,
+                             RiffleNo,
+                             Replicate,
+                             total_count))
+
+  # getting richness
+  richness <- calculateTRichness(data)
+
+  # WORKING HERE ========================================================================
+
+  # Shannon Evenness
+  shannon7 <- shannon6 |>
+    dplyr::mutate(J = H / log(richness)) # this should be richness?
+
+}
