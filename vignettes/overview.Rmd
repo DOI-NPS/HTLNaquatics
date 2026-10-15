@@ -1,0 +1,144 @@
+---
+title: "Using HTLNaquatics"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(width = 10)
+library(tidyverse)
+library(kableExtra)
+library(cowplot)
+```
+
+```{css echo = FALSE}
+.indent {
+margin-left: 25px;
+font-size: 14px;
+}
+
+.indent2 {
+margin-left: 50px;
+font-size: 12px;
+}
+
+.drop{
+  font-family: "Arial",Arial,sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  padding:0px 0px 0px 0px;
+  margin:0px 0px 0px 0px;
+}
+
+.fxn{
+  color:#1942B5;
+  font-size:14px;
+  font-weight: bold;
+}
+
+.title{
+ display:none;
+}
+/*
+h4{
+  color:#1942B5;
+}
+*/
+```
+
+```{r echo = F, include = F}
+print_head <- function(df){
+  knitr::kable(df[1:6,]) |> #, table.attr = "style='width:60%;'") |> 
+    kableExtra::kable_classic(full_width = F, font_size = 12, 
+                              bootstrap_options = c("condensed"))
+}
+
+# library(tidyverse)
+# park = 'all';site = 'all'; site_type = 'all'; years = 2006:2023; months = 1:12; output = 'short'
+# parameter = c("ANC", "NH3", "pH", "Temp_C", "SDepth_m", "Discharge_csf", "PenetrationRatio");
+# ... = NULL; smooth = F; layers = c("points", "lines"); threshold = T; legend_position = 'bottom'; span = 0.6
+```
+
+## Using the HTLNaquatics R package {.taset .tabset-pills}
+
+### Getting Started {.tabset}
+
+#### Installation
+
+<h4><b>Step 1.</b> Install R, RStudio, and RTools in Company Portal</h4>
+
+<h4><b>Step 2.</b> Install pak package in R:</h4>
+
+```{r, eval = F, class.source = "indent"}
+install.packages('pak')
+```
+
+<h4><b>Step 3.</b> Install HTLNaquatic from github</h4>
+
+Note that whenever the `HTLNaquatics` package is updated, you can rerun this code to install the latest version.
+
+```{r, eval = F, class.source = "indent"}
+library(pak)
+pkg_install("doi-nps/HTLNaquatics")
+```
+
+<h4><b>Step 4.</b> Load HTLNaquatics R package</h4>
+```{r, class.source = "indent"}
+library(HTLNaquatics)
+```
+
+<h4><b>Step 5.</b> Import data</h4>
+
+Note that R is not able to connect to files on Sharepoint or MS Teams (b/c Teams also stores all files on Sharepoint). That means you need to store Access Databases on your local machine or on a server (e.g. HTLN H drive). The default option for importing data will add the data views (i.e., flatfiles) to an environment called HTLNFish_VIEWS or HTLNInvert_VIEWS (depending on the database) to your Environment work space (i.e. Environment tab in top right panel). If you would rather import each individual view into your R session, specify with the new_env argument (e.g., `importData(new_env = F)`).
+
+```{r echo = F, results = 'hide', include = F}
+importData(instalnce = "local", 
+           path = "../../HTLN/HTLN Database",
+           name = "HTLNFish4.7.2.accdb")
+```
+
+OTHER OPTION HERE?????????
+
+<h4><b>Step 7. Play with the data</b></h4>
+
+The functions in the `HTLNaquatics` package are designed to work with the views, and are the best way to interact with the data to query by park, site, site type, year, parameter, etc. However, if you want to view the raw data, and you imported the data into the HTLN****_VIEWS environment, you can access them with the code below:
+```{r eval = F, class.source = "indent"}
+# See list of the views
+names(HTLNFish_VIEWS)
+
+# View one of the views
+View(HTLNFish_VIEWS$tbl_FishCommunitySampling)
+
+# Assign a view to a data frame named chem in R. Interact with fish_com the way you would work with any normal data frame in R. 
+fish_com <- HTLNFish_VIEWS$tbl_FishCommunitySampling
+```
+
+
+#### Getting Help
+
+<h4><b>Getting (and improving) Help</b></h4>
+
+The functions in `HTLNaquatics` have help documentation like any R package. To view the help, you can go to the Packages tab and click on HTLNaquatics (see below). That will show you all the functions in the package. Clicking on individual functions will take you to the help documentation for that function. 
+
+```{r echo = F, out.width = 500, fig.align = 'center'}
+knitr::include_graphics("./www/finding_R_package.jpg")
+```
+
+<p class = 'fxn'>You can also see the help of a function by running, for example: </p>
+```{r, class.source = 'indent', eval = F}
+?importData
+```
+
+<p class = 'fxn'>If `HTLNaquatics` isn't loaded yet, you'd run: </p>
+```{r, class.source = 'indent', eval = F}
+?HTLNaquatics::importData
+```
+
+Each function's help includes a Description, Usage (i.e. function arguments and their defaults), Argument options/definitions, and several examples showing how the function can be used. 
+
+<b><span style='color:red;'>This is where you come in! If you notice typos or can think of better descriptions, examples, error messages, etc., please send them my way!</b></span> After we're more comfortable with R packages and get versed on GitHub, you'll be able to make those changes directly in the package. For now, you can just send me your suggestions and I'll make the changes.
+
+Finally, if you ever want to peak under the hood at the function, you can view it several ways. 
+<ol>
+<li>Keep F2 key pressed and click on the function name in R. This trick works for many but not all functions in R.</li>
+<li>View code in the <a href="https://github.com/doi-nps/HTLNaquatics/main">GitHub doi-nps/HTLNaquatics repo</a>. The functions are in the R folder. 
