@@ -2,6 +2,7 @@
 #' output from getInvtCounts function.
 #'
 #' @importFrom dplyr mutate filter summarise n n_distinct
+#' @importFrom tidyselect all_of
 #'
 #' @description This function calculates the EPT richness and ratio from HTLN
 #' invertebrate data.
@@ -35,11 +36,31 @@
 calculateEPT <- function(data, type = 'all'){
 
   # Bug handling
+
+  ## type of calculation
   type_list <- c("ratio", "richness")
 
   if(identical(type, "all")){type <- type_list} else {type <- match.arg(type,
                                                                         choices = type_list,
                                                                         several.ok = TRUE)}
+
+  ## Checking data structure
+  col_names <- c("LocationID",
+                 "Season",
+                 "RiffleNo",
+                 "Replicate",
+                 "Order",
+                 "TaxonCode")
+
+  df_cols <- colnames(data)
+
+  missing_cols <- setdiff(col_names, df_cols)
+
+  if(length(missing_cols) > 0) {
+    stop("Missing the following columns for EPT calculations: ",
+         paste0(missing_cols,
+                collapse = ", "))
+  }
 
   # Orders for EPT
   ept_order <- c("Ephemeroptera",
@@ -52,14 +73,24 @@ calculateEPT <- function(data, type = 'all'){
             "RiffleNo",
             "Replicate")
 
-  ## calculating ept ratio and ept richness
-  ept_all <- data |>
-    dplyr::filter(if_all(c(LocationID, Season, RiffleNo), ~!is.na(.))) |>
+  # Calculations
+
+  ### removing NA
+  ept1 <- data |>
+    dplyr::filter(if_all(all_of(cols), ~!is.na(.)))
+
+  ### filtering order and family for calculations
+  ept2 <- ept1 |>
+    dplyr::filter(Order %in% ept_order |
+                    TaxonCode == "CHIR") # for Chironomidae
+
+  # Calculating EPT
+  ept3 <- ept2 |>
     dplyr::summarise(ept_count = sum(Order %in% ept_order, na.rm = TRUE),
                      total_samp = dplyr::n(),
                      ept_richness = dplyr::n_distinct(Order[Order %in% ept_order], na.rm = TRUE),
                      ept_ratio = ept_count / total_samp,
-                     .by = cols)
+                     .by = all_of(cols))
 
   # WORKING HERE:
 
@@ -67,33 +98,6 @@ calculateEPT <- function(data, type = 'all'){
   if ("richness" %in% type) cols <- c(cols, "ept_richness")
 
   out <- dplyr::select(ept_all, dplyr::all_of(cols))
-
-
-  # if(setequal(type %in% c("ratio", "richness"))){
-  #
-  #   ## type = "all"
-  #   out <- ept_all
-  #
-  # } else if (identical(type, "ratio")){
-  #
-  #   ## type == "ratio"
-  #   out <- ept_all |>
-  #     select(LocationID,
-  #            Season,
-  #            RiffleNo,
-  #            Replicate,
-  #            ept_ratio)
-  #
-  # } else if (identical(type, "richness")){
-  #
-  #   ## selecting ept_richness
-  #   out <- ept_all |>
-  #     select(LocationID,
-  #            Season,
-  #            RiffleNo,
-  #            Replicate,
-  #            ept_richness)
-  # }
 
   return(out)
 

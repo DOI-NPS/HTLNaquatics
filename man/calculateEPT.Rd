@@ -5,10 +5,10 @@
 \title{calculateEPT: calculates the EPT richness and EPT ratio with the
 output from getInvtCounts function.}
 \usage{
-calculateEPT(df, type = "all")
+calculateEPT(data, type = "all")
 }
 \arguments{
-\item{df}{The dataframe for calculating EPT.}
+\item{data}{The dataframe for calculating EPT.}
 
 \item{type}{Allows you to select the type of EPT (richness or ratio or both).
 \describe{

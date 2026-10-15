@@ -4,7 +4,11 @@
 \alias{getInvtCounts}
 \title{getInvtCounts: get count data from views with filtering options.}
 \usage{
-getInvtCounts(park = "all", season = NULL, taxon = "all")
+getInvtCounts(
+  park = "all",
+  years = 2005:format(Sys.Date(), "\%Y"),
+  taxon = "all"
+)
 }
 \arguments{
 \item{park}{Filter on park code. Can select more than one. Valid inputs:
@@ -28,11 +32,11 @@ getInvtCounts(park = "all", season = NULL, taxon = "all")
 \item{"WICR":}{Wilson's Creek NB only}
 }}
 
-\item{season}{Numeric. Filter on years based on Season. Default is all years.}
-
 \item{taxon}{Quoted string to return a particular taxonomic group based on
 TaxonCode. If a taxonomic group is specified that does not occur in the
 imported data, function will error out with a list of unmatched TaxonCodes.}
+
+\item{season}{Numeric. Filter on years based on Season. Default is all years.}
 }
 \value{
 Returns a data frame of count data

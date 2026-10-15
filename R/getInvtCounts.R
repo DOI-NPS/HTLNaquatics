@@ -1,6 +1,6 @@
 #' @title getInvtCounts: get count data from views with filtering options.
 #'
-#' @importFrom dplyr mutate filter
+#' @importFrom dplyr mutate filter left_join select join_by
 #'
 #' @description This function gets the count data from the views downloaded
 #' with importData.
@@ -57,7 +57,7 @@
 #'
 #' @export
 
-getInvtCounts <- function(park = 'all', season = NULL, taxon = "all"){
+getInvtCounts <- function(park = 'all', years = 2005:format(Sys.Date(), "%Y"), taxon = "all"){
 
   # Bug handling ----
 
@@ -72,24 +72,26 @@ getInvtCounts <- function(park = 'all', season = NULL, taxon = "all"){
                                                                    several.ok = TRUE)}
 
   ## season handling
-  ### NULL == all season
-  if(!is.null(season)){
-    if(!is.numeric(season)) stop("Season must be numeric (e.g. 2001:2020).")
-    season <- as.integer(season)
-  }
+  stopifnot(class(years) %in% c("numeric", "integer"), years >= 2005)
 
   # Compile Data ----
 
   env <- if(exists("HTLNInvert_VIEWS")){HTLNInvert_VIEWS} else {.GlobalEnv}
 
-  # Get table
+  # Get count data
   invt_count1 <- tryCatch(get("tbl_Count",
                               envir = env),
                           error = function(e){stop("Count table not found. Please import database tables.")})
 
-  temp12 <- tryCatch(get("tbl_Temp12",
-                         envir = env),
-                     error = function(e){stop("Temp12 table not found. Please import database tables.")})
+  # Get taxonomic data
+  taxon_df1 <- tryCatch(get("tlu_Taxa",
+                            envir = env),
+                        error = function(e){stop("Taxa table not found. Please import database tables.")})
+
+  # Get sample information
+  squares1 <- tryCatch(get("tbl_Squares",
+                          envir = env),
+                      error = function(e){stop("tbl_squares not found. Please import database tables.")})
 
   # Error for no park data
   parks_in_data <- unique(substr(invt_count1$LocationID, 1, 4))
@@ -104,7 +106,7 @@ getInvtCounts <- function(park = 'all', season = NULL, taxon = "all"){
   ## Return some but not missing parks
   missing_some <- setdiff(park, parks_in_data)
   if(length(missing_some) > 0){
-    warning("No data recorded in the Count Table fore the following park(s): ",
+    warning("No data recorded in the Count Table for the following park(s): ",
             paste0(missing_some, collapse = ", "),
             ". Returning data for available park(s): ",
             paste0(setdiff(park, missing_some), collapse = ", "))
@@ -114,9 +116,13 @@ getInvtCounts <- function(park = 'all', season = NULL, taxon = "all"){
   # Taxon handling
   taxon_names <- sort(unique(invt_count1$TaxonCode))
 
-  if(any(taxon == "all")){
+  if("all" %in% taxon){
+
+    # set all taxon
     taxon <- taxon_names
+
   } else {
+
     # check for typos
     typos <- setdiff(taxon,
                      taxon_names)
@@ -128,15 +134,59 @@ getInvtCounts <- function(park = 'all', season = NULL, taxon = "all"){
 
   # Filtering ----
   invt_count2 <- invt_count1 |>
-    dplyr::mutate(Park = substr(LocationID, 1, 4)) |>
-    dplyr::filter(Park %in% park &
-                    (is.null(season) || Season %in% season) &
-                    TaxonCode %in% taxon)
+    # removing weird columns that mess up merging
+    dplyr::select(-DETimeStamp,
+                  -Note) |>
+    # park column
+    dplyr::mutate(Park = substr(LocationID, 1, 4))
+
+  # filter parks
+  invt_count3 <- dplyr::filter(invt_count2,
+                               Park %in% park)
+
+  # filter season
+  invt_count4 <- dplyr::filter(invt_count3,
+                               Season %in% years)
+
+  # filter taxonCode
+  invt_count5 <- dplyr::filter(invt_count4,
+                               TaxonCode %in% taxon)
+
+  # fixing data for merging
+
+  ## taxon
+  taxon_df2 <- taxon_df1 |>
+    # removing weid columns that mess up merging
+    dplyr::select(-DETimeStamp,
+                  -Note)
+
+  ## squares
+  squares2 <- squares1 |>
+    dplyr::select(-RecID,
+                  -DETimeStamp)|>
+    dplyr::mutate(LocationID = toupper(LocationID),
+                  EventID = toupper(EventID),
+                  Replicate =toupper(Replicate))
+
 
   # joining with temp 12 file
-  invt_count <- invt_count2 |>
-    dplyr::left_join(temp12)
+  invt_count6 <- invt_count5 |>
+    dplyr::mutate(LocationID = toupper(LocationID),
+                  EventID = toupper(EventID),
+                  Replicate =toupper(Replicate))|>
+    dplyr::left_join(taxon_df2,
+                     by = dplyr::join_by(TaxonCode)) |>
+    dplyr::left_join(squares2,
+                     by = dplyr::join_by(LocationID,
+                                         EventID,
+                                         Season,
+                                         RiffleNo,
+                                         Replicate))
+
+  # Calculating RepCount_Cal
+  invt_count7 <- invt_count6 |>
+    dplyr::mutate(RepCount_Calc = (RepCount / (PerSample / 100)))
 
 
-  return(invt_count)
+  return(invt_count7)
 }
