@@ -1,6 +1,6 @@
 #' @title calculateShannon: calculates the Shannon's Diversity Index with the output from getInvtCounts function.
 #'
-#' @importFrom dplyr mutate filter summarise n n_distinct
+#' @importFrom dplyr mutate filter summarise left_join
 #'
 #' @description This function calculates the Shannon's Diversity Index from HTLN
 #' invertebrate data.
@@ -86,12 +86,21 @@ calculateShannon <- function(data){
                              total_count))
 
   # getting richness
-  richness <- calculateTRichness(data)
+  richness <- calculateTRichness(data,
+                                 type = "invertebrate")
 
-  # WORKING HERE ========================================================================
+  # merging richness with shannon
+  shannon7 <- dplyr::left_join(shannon6,
+                               richness,
+                               by = join_by(LocationID,
+                                            Season,
+                                            RiffleNo,
+                                            Replicate))
 
   # Shannon Evenness
-  shannon7 <- shannon6 |>
-    dplyr::mutate(J = H / log(richness)) # this should be richness?
+  shannon8 <- shannon7 |>
+    dplyr::mutate(J = H / log(taxa_richness)) # this should be richness?
+
+  return(shannon8)
 
 }
