@@ -30,6 +30,7 @@ calculateHBI <- function(data){
 
   ## Checking data structure
   col_names <- c("LocationID",
+                 "Park",
                  "Season",
                  "RiffleNo",
                  "Replicate",

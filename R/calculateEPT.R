@@ -69,6 +69,7 @@ calculateEPT <- function(data, type = 'all'){
 
   # Columns to group by
   cols <- c("LocationID",
+            "Park",
             "Season",
             "RiffleNo",
             "Replicate")

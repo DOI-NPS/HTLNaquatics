@@ -61,6 +61,7 @@ calculateTRichness <- function(data, type = "invertebrate"){
 
   # Columns to group by
   cols <- c("LocationID",
+            "Park",
             "Season",
             "RiffleNo",
             "Replicate")

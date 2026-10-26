@@ -191,6 +191,5 @@ getInvtCounts <- function(park = 'all', years = 2005:format(Sys.Date(), "%Y"), t
   invt_count8 <- invt_count7 |>
     dplyr::mutate(TVxcount = RepCount_Calc * ToleranceValue)
 
-
   return(invt_count8)
 }

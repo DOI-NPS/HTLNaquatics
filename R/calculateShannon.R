@@ -52,6 +52,7 @@ calculateShannon <- function(data){
 
   # Columns to group by
   cols <- c("LocationID",
+            "Park",
             "Season",
             "RiffleNo",
             "Replicate")
