@@ -1,9 +1,9 @@
 # HTLNaquatics
 This R package was developed to analyze aquatic data collected by the Heartland Inventory and Monitoring Network (HTLN).
 
-The R package can be installed using `pak::pkg_install('kbaileynps/HTLNaquatics')`
+The R package can be installed using `pak::pkg_install('DOI-NPS/HTLNaquatics')`
 
-Previous archived versions of this R package can be found at [www.github.com/kinziebailey/HTLNaquatics](www.github.com/kinziebailey/HTLNaquatics)
+Previous archived versions of this R package can be found at [www.github.com/DOI-NPS/HTLNaquatics](www.github.com/DOI-NPS/HTLNaquatics)
 
 The following functions are used to compile and analyze aquatic data collected using the monitoring protocol for aquatic invertebrates and fish communities. 
 <ul>
