@@ -3,19 +3,25 @@
 \name{calculateTRichness}
 \alias{calculateTRichness}
 \title{calculateTRichness: calculates the taxa richness with the output from
-getInvtCounts function.}
+getInvtCounts functionor fish data function (not yet enabled).}
 \usage{
-calculateTRichness(data)
+calculateTRichness(data, type = "invertebrate")
 }
 \arguments{
 \item{data}{The dataframe for calculating taxa richness.}
+
+\item{type}{Indicate what type of dataset to calculate taxa richness on.
+\describe{
+\item{"invertebrate"}{Default. Calculates taxa richness for the invertebrate dataset}
+\item{"fish"}{Calculates taxa richness for the fish dataset (not yet enabled)}
+}}
 }
 \value{
 Returns a data frame of taxa richness data
 }
 \description{
 This function calculates the taxa richness from HTLN
-invertebrate data.
+invertebrate or fish (not yet enabled) data.
 }
 \examples{
 \dontrun{

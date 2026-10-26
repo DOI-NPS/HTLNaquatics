@@ -1,13 +1,19 @@
 #' @title calculateTRichness: calculates the taxa richness with the output from
-#' getInvtCounts function.
+#' getInvtCounts functionor fish data function (not yet enabled).
 #'
 #' @importFrom dplyr filter summarise n_distinct
 #' @importFrom tidyselect all_of
 #'
 #' @description This function calculates the taxa richness from HTLN
-#' invertebrate data.
+#' invertebrate or fish (not yet enabled) data.
 #'
 #' @param data The dataframe for calculating taxa richness.
+#'
+#' @param type Indicate what type of dataset to calculate taxa richness on.
+#' \describe{
+#' \item{"invertebrate"}{Default. Calculates taxa richness for the invertebrate dataset}
+#' \item{"fish"}{Calculates taxa richness for the fish dataset (not yet enabled)}
+#' }
 #'
 #' @examples
 #' \dontrun{
@@ -22,7 +28,14 @@
 #'
 #' @export
 
-calculateTRichness <- function(data){
+calculateTRichness <- function(data, type = "invertebrate"){
+
+  # Bug handling for type
+  type <- match.arg(type, c("invertebrate", "fish"))
+
+  if(type == "invertebrate"){
+
+  # Code for invertebrate data
 
   # Bug handling
 
@@ -57,8 +70,15 @@ calculateTRichness <- function(data){
     dplyr::filter(if_all(all_of(cols), ~!is.na(.)))
 
   # Calculating Taxa Richness
-  taxa2 <- taxa1 |>
+  taxa <- taxa1 |>
     dplyr::summarise(taxa_richness = dplyr::n_distinct(TaxonCode),
                      .by = all_of(cols))
 
+  } else{
+
+    taxa <- NULL
+
+    }
+
+  return(taxa)
 }
