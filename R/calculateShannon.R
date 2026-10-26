@@ -1,6 +1,7 @@
 #' @title calculateShannon: calculates the Shannon's Diversity Index with the output from getInvtCounts function.
 #'
 #' @importFrom dplyr mutate filter summarise left_join
+#' @importFrom tidyselect all_of
 #'
 #' @description This function calculates the Shannon's Diversity Index from HTLN
 #' invertebrate data.
@@ -62,7 +63,7 @@ calculateShannon <- function(data){
   # getting total number of individuals counted
   shannon2 <- shannon1 |>
     dplyr::mutate(total_count = sum(RepCount_Calc, na.rm = TRUE),
-                  .by = all_of(cols))
+                  .by = tidyselect::all_of(cols))
 
   # proportions
   shannon3 <- shannon2 |>

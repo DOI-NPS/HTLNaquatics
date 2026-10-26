@@ -3,7 +3,7 @@
 \name{calculateTRichness}
 \alias{calculateTRichness}
 \title{calculateTRichness: calculates the taxa richness with the output from
-getInvtCounts functionor fish data function (not yet enabled).}
+getInvtCounts function or fish data function (not yet enabled).}
 \usage{
 calculateTRichness(data, type = "invertebrate")
 }

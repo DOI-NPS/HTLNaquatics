@@ -1,7 +1,7 @@
 #' @title calculateTRichness: calculates the taxa richness with the output from
-#' getInvtCounts functionor fish data function (not yet enabled).
+#' getInvtCounts function or fish data function (not yet enabled).
 #'
-#' @importFrom dplyr filter summarise n_distinct
+#' @importFrom dplyr filter summarise n_distinct if_all
 #' @importFrom tidyselect all_of
 #'
 #' @description This function calculates the taxa richness from HTLN
@@ -67,12 +67,12 @@ calculateTRichness <- function(data, type = "invertebrate"){
 
   ## removing NA
   taxa1 <- data |>
-    dplyr::filter(if_all(all_of(cols), ~!is.na(.)))
+    dplyr::filter(dplyr::if_all(tidyselect::all_of(cols), ~!is.na(.)))
 
   # Calculating Taxa Richness
   taxa <- taxa1 |>
     dplyr::summarise(taxa_richness = dplyr::n_distinct(TaxonCode),
-                     .by = all_of(cols))
+                     .by = tidyselect::all_of(cols))
 
   } else{
 

@@ -97,7 +97,7 @@ calculateEPT <- function(data, type = 'all'){
   if ("ratio" %in% type)    cols <- c(cols, "ept_ratio")
   if ("richness" %in% type) cols <- c(cols, "ept_richness")
 
-  out <- dplyr::select(ept_all, dplyr::all_of(cols))
+  out <- dplyr::select(ept3, dplyr::all_of(cols))
 
   return(out)
 

@@ -173,7 +173,7 @@ getInvtCounts <- function(park = 'all', years = 2005:format(Sys.Date(), "%Y"), t
   invt_count6 <- invt_count5 |>
     dplyr::mutate(LocationID = toupper(LocationID),
                   EventID = toupper(EventID),
-                  Replicate =toupper(Replicate))|>
+                  Replicate = toupper(Replicate))|>
     dplyr::left_join(taxon_df2,
                      by = dplyr::join_by(TaxonCode)) |>
     dplyr::left_join(squares2,
@@ -187,6 +187,10 @@ getInvtCounts <- function(park = 'all', years = 2005:format(Sys.Date(), "%Y"), t
   invt_count7 <- invt_count6 |>
     dplyr::mutate(RepCount_Calc = (RepCount / (PerSample / 100)))
 
+  # Calculating Tvxcount
+  invt_count8 <- invt_count7 |>
+    dplyr::mutate(TVxcount = RepCount_Calc * ToleranceValue)
 
-  return(invt_count7)
+
+  return(invt_count8)
 }
