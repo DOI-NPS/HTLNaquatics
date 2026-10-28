@@ -70,9 +70,18 @@ getInvtHabitat <- function(park = 'all', years = 2005:format(Sys.Date(), "%Y")){
 
   # Get riffle samples data
   riffle_samp1 <- tryCatch(get("tbl_RiffleSamples",
-                            envir = env),
-                        error = function(e){stop("Riffle Samples table not found. Please import database tables.")})
+                               envir = env),
+                           error = function(e){stop("Riffle Samples table not found. Please import database tables.")})
 
+  # Getting wentworth substrate codes
+  wentworth1 <- tryCatch(get("tlu_WentworthSubstrateCodes",
+                             envir = env),
+                         eror = function(e){stop("Wenthworth Substrate Codes table not found. Please import database tables.")})
+
+  # Get riffle cover class data
+  riffle_cc1 <- tryCatch(get("tlu_RiffleCoverClass",
+                             envir = env),
+                         error = function(e){stop("Riffle Cover Class table not found. Please import database tables.")})
 
   # Error for no park data
   parks_in_data <- unique(substr(riffle_samp1$LocationID, 1, 4))
@@ -95,64 +104,51 @@ getInvtHabitat <- function(park = 'all', years = 2005:format(Sys.Date(), "%Y")){
   }
 
   # Filtering ----
-  invt_count2 <- invt_count1 |>
+  riffle_samp2 <- riffle_samp1 |>
     # removing weird columns that mess up merging
-    dplyr::select(-DETimeStamp,
+    dplyr::select(-RecID,
+                  -DETimeStamp,
                   -Note) |>
     # park column
     dplyr::mutate(Park = substr(LocationID, 1, 4))
 
   # filter parks
-  invt_count3 <- dplyr::filter(invt_count2,
+  riffle_samp3 <- dplyr::filter(riffle_samp2,
                                Park %in% park)
 
   # filter season
-  invt_count4 <- dplyr::filter(invt_count3,
+  riffle_samp4 <- dplyr::filter(riffle_samp3,
                                Season %in% years)
 
-  # filter taxonCode
-  invt_count5 <- dplyr::filter(invt_count4,
-                               TaxonCode %in% taxon)
+  # Calculating additional riffle data
 
-  # fixing data for merging
+  ## substrate_mm
+  riffle_samp5 <- riffle_sampe4 |>
+    dplyr::mutate()
 
-  ## taxon
-  taxon_df2 <- taxon_df1 |>
-    # removing weid columns that mess up merging
-    dplyr::select(-DETimeStamp,
-                  -Note)
+  ## embeddedness %
+  riffle_samp6 <- riffle_sampe5 |>
+    dplyr::mutate()
 
-  ## squares
-  squares2 <- squares1 |>
-    dplyr::select(-RecID,
-                  -DETimeStamp)|>
-    dplyr::mutate(LocationID = toupper(LocationID),
-                  EventID = toupper(EventID),
-                  Replicate =toupper(Replicate))
+  ## vegetation %
+  riffle_samp7 <- riffle_sampe6 |>
+    dplyr::mutate()
 
+  ## algae %
+  riffle_samp8 <- riffle_sampe7 |>
+    dplyr::mutate()
 
-  # joining with temp 12 file
-  invt_count6 <- invt_count5 |>
-    dplyr::mutate(LocationID = toupper(LocationID),
-                  EventID = toupper(EventID),
-                  Replicate = toupper(Replicate))|>
-    dplyr::left_join(taxon_df2,
-                     by = dplyr::join_by(TaxonCode)) |>
-    dplyr::left_join(squares2,
-                     by = dplyr::join_by(LocationID,
-                                         EventID,
-                                         Season,
-                                         RiffleNo,
-                                         Replicate))
+  ## periphyton %
+  riffle_samp9 <- riffle_sampe8 |>
+    dplyr::mutate()
 
-  # Calculating RepCount_Cal
-  invt_count7 <- invt_count6 |>
-    dplyr::mutate(RepCount_Calc = (RepCount / (PerSample / 100)))
+  ## deposition %
+  riffle_samp10 <- riffle_sampe9 |>
+    dplyr::mutate()
 
-  # Calculating Tvxcount
-  invt_count8 <- invt_count7 |>
-    dplyr::mutate(TVxcount = RepCount_Calc * ToleranceValue)
+  ## organics %
+  riffle_samp11 <- riffle_sampe10 |>
+    dplyr::mutate()
 
-
-  return(invt_count8)
+  return(riffle_samp11)
 }

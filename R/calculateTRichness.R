@@ -15,6 +15,14 @@
 #' \item{"fish"}{Calculates taxa richness for the fish dataset (not yet enabled)}
 #' }
 #'
+#' @param summarize_to Mostly used for internal function calculations. Summarizes
+#' the data to either site level (default), riffle level, or replicate level.
+#' \describe{
+#' \item{"site"}{Default. Returns site level mean and sd taxon richness}
+#' \item{"riffle}{Returns riffle level mean and sd taxon richness}
+#' \item{"replicate}{Returns replicate level taxon richness}
+#' }
+#'
 #' @examples
 #' \dontrun{
 #'
@@ -28,10 +36,23 @@
 #'
 #' @export
 
-calculateTRichness <- function(data, type = "invertebrate"){
+calculateTRichness <- function(data, type = "invertebrate", summarize_to = "site"){
 
-  # Bug handling for type
+  # Bug handling
+
+  ## type
   type <- match.arg(type, c("invertebrate", "fish"))
+
+  ## summarize_to
+  summarize_to <- match.arg(summarize_to, c("site", "riffle", "replicate"))
+
+  if(summarize_to == "site"){
+    summarize_level <- "LocationID"
+  } else if(summarize_to == "riffle"){
+    summarize_level <- "RiffleNo"
+  } else {
+    summarize_level <- "Replicate"
+  }
 
   if(type == "invertebrate"){
 
@@ -41,6 +62,7 @@ calculateTRichness <- function(data, type = "invertebrate"){
 
   ## Checking data structure
   col_names <- c("LocationID",
+                 "Park",
                  "Season",
                  "RiffleNo",
                  "Replicate",
@@ -71,15 +93,32 @@ calculateTRichness <- function(data, type = "invertebrate"){
     dplyr::filter(dplyr::if_all(tidyselect::all_of(cols), ~!is.na(.)))
 
   # Calculating Taxa Richness
-  taxa <- taxa1 |>
+  taxa2 <- taxa1 |>
     dplyr::summarise(taxa_richness = dplyr::n_distinct(TaxonCode),
                      .by = tidyselect::all_of(cols))
 
+  # summarising to riffle
+  taxa3 <- taxa2 |>
+    dplyr::summarise(taxa_richness_mean = mean(taxa_richness, na.rm = TRUE),
+                     taxa_richness_sd = sd(taxa_richness, na.rm = TRUE),
+                     .by = c(Park,
+                             LocationID,
+                             Season,
+                             RiffleNo))
+
+  # summarising to sit
+  taxa_final <- taxa3 |>
+    dplyr::summarise(taxa_richness_mean = mean(taxa_richness_mean, na.rm = TRUE),
+                     taxa_richness_sd = sd(taxa_richness_mean, na.rm = TRUE),
+                     .by = c(Park,
+                             LocationID,
+                             Season))
+
   } else{
 
-    taxa <- NULL
+    taxa_final <- NULL
 
     }
 
-  return(taxa)
+  return(taxa_final)
 }

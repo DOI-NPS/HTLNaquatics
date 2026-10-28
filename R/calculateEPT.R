@@ -46,6 +46,7 @@ calculateEPT <- function(data, type = 'all'){
 
   ## Checking data structure
   col_names <- c("LocationID",
+                 "Park",
                  "Season",
                  "RiffleNo",
                  "Replicate",
@@ -93,12 +94,32 @@ calculateEPT <- function(data, type = 'all'){
                      ept_ratio = ept_count / total_samp,
                      .by = all_of(cols))
 
-  # WORKING HERE:
+  # Averaging to riffle
+  ept4 <- ept3 |>
+    dplyr::summarise(ept_richness = mean(ept_richness, na.rm = TRUE),
+                     ept_ratio = mean(ept_ratio, na.rm = TRUE),
+                     .by = c(Park,
+                             LocationID,
+                             Season,
+                             RiffleNo))
 
-  if ("ratio" %in% type)    cols <- c(cols, "ept_ratio")
-  if ("richness" %in% type) cols <- c(cols, "ept_richness")
+  # Site level measurement
+  ept5 <- ept4 |>
+    dplyr::summarise(ept_richness_mean = mean(ept_richness, na.rm = TRUE),
+                     ept_richness_sd = sd(ept_richness, na.rm = TRUE),
+                     ept_ratio_mean = mean(ept_ratio, na.rm = TRUE),
+                     ept_ratio_sd = mean(ept_ratio, na.rm = TRUE),
+                     .by = c(Park,
+                             LocationID,
+                             Season))
 
-  out <- dplyr::select(ept3, dplyr::all_of(cols))
+  # output columns
+  cols_out <- c("Park", "LocationID", "Season")
+
+  if ("ratio" %in% type)    cols_out <- c(cols_out, "ept_ratio_mean", "ept_ratio_sd")
+  if ("richness" %in% type) cols_out <- c(cols_out, "ept_richness_mean", "ept_richness_sd")
+
+  out <- dplyr::select(ept5, dplyr::all_of(cols_out))
 
   return(out)
 

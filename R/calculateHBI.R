@@ -51,6 +51,7 @@ calculateHBI <- function(data){
 
   # Columns to group by
   cols <- c("LocationID",
+            "Park",
             "Season",
             "RiffleNo",
             "Replicate")
@@ -69,5 +70,21 @@ calculateHBI <- function(data){
   hbi3 <- hbi2 |>
     dplyr::mutate(hbi = tv_total / count_total)
 
-  return(hbi3)
+  # summarising to riffle
+  hbi4 <- hbi3 |>
+    dplyr::summarise(hbi = mean(hbi, na.rm = TRUE),
+                     .by = c(Park,
+                             LocationID,
+                             Season,
+                             RiffleNo))
+
+  # summarising to site level
+  hbi5 <- hbi4 |>
+    dplyr::summarise(hbi_mean = mean(hbi, na.rm = TRUE),
+                     hbi_sd = sd(hbi, na.rm = TRUE),
+                     .by = c(Park,
+                             LocationID,
+                             Season))
+
+  return(hbi5)
 }

@@ -41,21 +41,17 @@ getInvtSummaryStats <- function(data){
   # Merging Data
   summary_stats <- ept |>
     dplyr::left_join(shannon,
-                     by = join_by(LocationID, Season,
-                                  RiffleNo, Replicate)) |>
+                     by = join_by(Park, LocationID, Season)) |>
     dplyr::left_join(taxon_richness,
-                     by = join_by(LocationID, Season,
-                                  RiffleNo, Replicate, taxa_richness)) |>
+                     by = join_by(Park, LocationID, Season)) |>
     dplyr::left_join(hbi,
-                     by = join_by(LocationID, Season,
-                                  RiffleNo, Replicate))
+                     by = join_by(Park, LocationID, Season))
 
   # selecting columns
   summary_stats1 <- summary_stats |>
-    dplyr::select(LocationID,
-                  Seawson,
-                  RiffleNo,
-                  Replicate,
+    dplyr::select(Park,
+                  LocationID,
+                  Season,
                   taxa_richness,
                   ept_richness,
                   ept_ratio,

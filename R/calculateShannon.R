@@ -33,6 +33,7 @@ calculateShannon <- function(data){
 
   ## Checking data structure
   col_names <- c("LocationID",
+                 "Park",
                  "Season",
                  "RiffleNo",
                  "Replicate",
@@ -81,7 +82,8 @@ calculateShannon <- function(data){
   # Shannon Diversity Index
   shannon6 <- shannon5 |>
     dplyr::summarise(H = sum(-prop_log),
-                     .by = c(LocationID,
+                     .by = c(Park,
+                             LocationID,
                              Season,
                              RiffleNo,
                              Replicate,
@@ -94,7 +96,8 @@ calculateShannon <- function(data){
   # merging richness with shannon
   shannon7 <- dplyr::left_join(shannon6,
                                richness,
-                               by = join_by(LocationID,
+                               by = join_by(Park,
+                                            LocationID,
                                             Season,
                                             RiffleNo,
                                             Replicate))
@@ -103,6 +106,25 @@ calculateShannon <- function(data){
   shannon8 <- shannon7 |>
     dplyr::mutate(J = H / log(taxa_richness)) # this should be richness?
 
-  return(shannon8)
+  # summarising to riffle
+  shannon9 <- shannon8 |>
+    dplyr::summarise(H = mean(H, na.rm = TRUE),
+                     J = mean(J, na.rm = TRUE),
+                     .by = c(Park,
+                             LocationID,
+                             Season,
+                             RiffleNo))
+
+  # summarising to site level
+  shannon10 <- shannon9 |>
+    dplyr::summarise(H_mean = mean(H, na.rm = TRUE),
+                     H_sd = sd(H, na.rm = TRUE),
+                     J_mean = mean(J, na.rm = TRUE),
+                     J_sd = sd(J, na.rm = TRUE),
+                     .by = c(Park,
+                             LocationID,
+                             Season))
+
+  return(shannon10)
 
 }
